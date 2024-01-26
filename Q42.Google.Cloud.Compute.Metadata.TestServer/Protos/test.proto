@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option csharp_namespace = "Q42.Google.Cloud.Compute.Metadata.TestServer";
+
+package test;
+
+import "google/protobuf/empty.proto";
+
+// The greeting service definition.
+service TestService {
+  // Sends a greeting
+  rpc TestMetadata (google.protobuf.Empty) returns (TestReply);
+}
+
+// The response message containing responses from the metadata api's.
+message TestReply {
+  bool onGce = 1;
+  string project_id = 2;
+  string numeric_project_id = 3;
+  string instance_id = 4;
+  string internal_ip = 5;
+  string default_sa_email = 6;
+  string external_ip = 7;
+  string hostname = 8;
+  repeated string instance_tags = 9;
+  string instance_name = 10;
+  string zone = 11;
+  repeated string instance_attributes = 12;
+  repeated string project_attributes = 13;
+  string default_sa_scopes = 14;
+}
