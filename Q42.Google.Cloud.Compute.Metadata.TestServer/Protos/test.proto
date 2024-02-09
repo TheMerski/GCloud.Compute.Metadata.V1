@@ -27,5 +27,5 @@ message TestReply {
   string zone = 11;
   repeated string instance_attributes = 12;
   repeated string project_attributes = 13;
-  string default_sa_scopes = 14;
+  repeated string default_sa_scopes = 14;
 }

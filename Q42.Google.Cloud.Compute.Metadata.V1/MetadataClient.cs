@@ -42,24 +42,37 @@ public class MetadataClient: IDisposable
     /// <summary>
     /// Initialize a new MetadataClient.
     /// </summary>
+    /// <param name="httpClient">An injected HttpClient to use</param>
     /// <param name="throwIfNotOnGce">
-    /// Defines if the functions should throw when not on GCE.
-    /// When `false`, the functions will return null when not on GCE.
-    /// When `true`, the functions will throw when not on GCE.
+    ///     Defines if the functions should throw a NotOnGceException when not on GCE.
+    ///     When `false`, the functions will return null when not on GCE.
+    ///     When `true`, the functions will throw when not on GCE.
     /// </param>
-    public MetadataClient(bool throwIfNotOnGce = false)
+    public MetadataClient(HttpClient httpClient, bool throwIfNotOnGce = false)
     {
         this.throwIfNotOnGce = throwIfNotOnGce;
         metadataHost = Environment.GetEnvironmentVariable(metadataHostEnv) ?? metadataIP;
         baseUrl = $"http://{metadataHost}/computeMetadata/v1/";
 
-        client = new HttpClient();
+        client = httpClient;
         client.DefaultRequestHeaders.Add("User-Agent", userAgent);
         // Required header per https://cloud.google.com/compute/docs/metadata/overview#parts-of-a-request
         client.DefaultRequestHeaders.Add("Metadata-Flavor", "Google");
 
         // Timeout after 1 second, because we don't want to wait for the metadata server if we're not on GCE.
         client.Timeout = TimeSpan.FromSeconds(1);
+    }
+
+    /// <summary>
+    /// Initialize a new MetadataClient.
+    /// </summary>
+    /// <param name="throwIfNotOnGce">
+    ///     Defines if the functions should throw when not on GCE.
+    ///     When `false`, the functions will return null when not on GCE.
+    ///     When `true`, the functions will throw when not on GCE.
+    /// </param>
+    public MetadataClient(bool throwIfNotOnGce = false) : this(new HttpClient(), throwIfNotOnGce)
+    {
     }
 
     /// <summary>
@@ -74,11 +87,9 @@ public class MetadataClient: IDisposable
         {
             var response = await client.GetAsync($"http://{metadataHost}", cancellationToken);
             onGCE = response.Headers.TryGetValues("Metadata-Flavor", out var values) && values.Contains("Google");
-            Console.WriteLine("On GCE: {0}", onGCE.Value ? "Yes" : "No");
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine("Failed to connect to metadata server: {0}", e.Message);
             // If we get an exception, we're can't connect to the metadata server or receive an error, so we are probably not on GCE.
             onGCE = false;
         }
@@ -126,7 +137,7 @@ public class MetadataClient: IDisposable
     /// <param name="serviceAccount">The service account to get the email for, or null/empty for default</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The email address associated with the service account.</returns>
-    public async Task<string?> GetEmailAsync(string? serviceAccount, CancellationToken cancellationToken)
+    public async Task<string?> GetEmailAsync(string? serviceAccount = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(serviceAccount))
         {
@@ -227,14 +238,14 @@ public class MetadataClient: IDisposable
     /// <param name="serviceAccount">The service account to get the scopes for, or null/empty for default</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The scopes associated with the service account.</returns>
-    public async Task<string?> GetScopesAsync(string? serviceAccount, CancellationToken cancellationToken)
+    public async Task<string[]?> GetScopesAsync(string? serviceAccount = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(serviceAccount))
         {
             serviceAccount = "default";
         }
 
-        return await GetTrimmedCachedString($"instance/service-accounts/{serviceAccount}/scopes",
+        return await GetCachedLines($"instance/service-accounts/{serviceAccount}/scopes",
             cancellationToken);
     }
 
@@ -242,7 +253,7 @@ public class MetadataClient: IDisposable
     private async Task<string[]?> GetCachedLines(string suffix, CancellationToken cancellationToken)
     {
         var str = await GetCachedString(suffix, cancellationToken);
-        return str?.Trim().Split('\n').Select(s => s.Trim()).ToArray();
+        return str?.Trim().Split('\n').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
     }
 
     private async Task<string?> GetTrimmedCachedString(string suffix, CancellationToken cancellationToken)
@@ -261,7 +272,7 @@ public class MetadataClient: IDisposable
         if (!await IsOnGCEAsync(cancellationToken))
         {
             if (throwIfNotOnGce)
-                throw new Exception("Not running on GCE");
+                throw new NotOnGceException();
             return null;
         }
 

@@ -60,7 +60,7 @@ public class TestService(ILogger<TestService> logger) : TestServer.TestService.T
             Zone = zone.GetResultOrEmpty(),
             InstanceAttributes = { instanceAttributes.GetResultOrEmpty() },
             ProjectAttributes = { projectAttributes.GetResultOrEmpty() },
-            DefaultSaScopes = defaultSaScopes.GetResultOrEmpty()
+            DefaultSaScopes = { defaultSaScopes.GetResultOrEmpty() }
         };
     }
 }
