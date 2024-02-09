@@ -1,0 +1,27 @@
+name: Test changes
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: 📥 Restore dependencies
+        run: dotnet restore --verbosity normal
+      - name: 🔨 Build
+        run: dotnet build --no-restore --verbosity normal
+      - name: 📋 Test
+        run: dotnet test --no-restore --verbosity normal
