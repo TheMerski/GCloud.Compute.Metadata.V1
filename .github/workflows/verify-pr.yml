@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
-          REQUIRED_LABELS_ANY: "feature,bug,maintenance,chore,ignore-for-release,major,minor,patch,github-actions"
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['feature','bug','maintenance', 'chore', 'ignore-for-release', 'major', 'minor', 'patch', 'github-actions']"
+          REQUIRED_LABELS_ANY: "feature,bug,maintenance,dependencies,chore,ignore-for-release,major,minor,patch,github-actions"
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['feature','bug','maintenance', 'dependencies', 'chore', 'ignore-for-release', 'major', 'minor', 'patch', 'github-actions']"
 
   test:
     runs-on: ubuntu-latest
