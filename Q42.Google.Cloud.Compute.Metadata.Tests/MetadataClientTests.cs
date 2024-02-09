@@ -46,8 +46,32 @@ public class Tests
         mockHttp.VerifyNoOutstandingExpectation();
     }
 
-    // We timeout the test after 1042ms, because the default timeout is 1000ms.
-    [Test, Timeout(1042)]
+    [Test]
+    public async Task IsOnGCEIsCached()
+    {
+        var httpContent = new StringContent("", Encoding.UTF8, "application/text");
+        var mockHttp = new MockHttpMessageHandler();
+        var reqMock = mockHttp.When($"{baseAddress}/*")
+            .WithHeaders(googleHeaders)
+            .Respond(HttpStatusCode.OK, googleHeaders, httpContent);
+
+        var client = mockHttp.ToHttpClient();
+        using var metadata = new MetadataClient(client);
+        var onGce = await metadata.IsOnGCEAsync();
+        Assert.That(onGce, Is.True);
+        var onGce2 = await metadata.IsOnGCEAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(onGce2, Is.True);
+            // Verify that the request was only made once (and thus cached).
+            Assert.That(mockHttp.GetMatchCount(reqMock), Is.EqualTo(1));
+        });
+        mockHttp.VerifyNoOutstandingExpectation();
+    }
+
+    // Cancel after a little over 1s to verify we don't wait too long for the metadata server.
+    // The requests should time out after 1s.
+    [Test, CancelAfter(1042)]
     public async Task IsOnGCEFalse()
     {
         using var metadata = new MetadataClient();
@@ -98,6 +122,37 @@ public class Tests
         using var metadata = new MetadataClient(mockHttpOnGce.ToHttpClient());
         var result = await metadata.GetProjectIdAsync();
         Assert.That(result, Is.EqualTo(projectId));
+        mockHttpOnGce.VerifyNoOutstandingExpectation();
+    }
+
+    [Test]
+    public Task GetsAreCached()
+    {
+        var reqMock = mockHttpOnGce.When($"{metadataBase}project/project-id")
+            .WithHeaders(googleHeaders)
+            .Respond(HttpStatusCode.NotFound);
+        using var metadata = new MetadataClient(mockHttpOnGce.ToHttpClient());
+        Assert.ThrowsAsync<Exception>(async () => await metadata.GetProjectIdAsync());
+        return Task.CompletedTask;
+    }
+
+    [Test]
+    public async Task GetsThrowsOnNotFound()
+    {
+        const string projectId = "test-project";
+        var reqMock = mockHttpOnGce.When($"{metadataBase}project/project-id")
+            .WithHeaders(googleHeaders)
+            .Respond(HttpStatusCode.OK, googleHeaders, "application/text", projectId);
+        using var metadata = new MetadataClient(mockHttpOnGce.ToHttpClient());
+        var result = await metadata.GetProjectIdAsync();
+        Assert.That(result, Is.EqualTo(projectId));
+        var result2 = await metadata.GetProjectIdAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(result2, Is.EqualTo(projectId));
+            // Verify that the request was only made once (and thus cached).
+            Assert.That(mockHttpOnGce.GetMatchCount(reqMock), Is.EqualTo(1));
+        });
         mockHttpOnGce.VerifyNoOutstandingExpectation();
     }
 
