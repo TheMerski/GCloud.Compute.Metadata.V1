@@ -10,6 +10,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  enforce-label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: yogevbd/enforce-label-action@2.2.2
+        with:
+          REQUIRED_LABELS_ANY: "feature,bug,maintenance,ignore-for-release,major,minor,patch,github-actions"
+          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['feature','bug','maintenance','ignore-for-release', 'major', 'minor', 'patch', 'github-actions']"
+
   test:
     runs-on: ubuntu-latest
     permissions:

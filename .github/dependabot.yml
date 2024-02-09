@@ -9,6 +9,9 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
+    labels:
+      - "nuget"
+      - "dependencies"
     groups:
       all:
         patterns:
@@ -17,6 +20,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
+    labels:
+      - "github-actions"
     groups:
       all:
         patterns:
