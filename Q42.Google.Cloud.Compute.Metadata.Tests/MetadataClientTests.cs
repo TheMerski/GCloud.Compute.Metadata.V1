@@ -24,6 +24,12 @@ public class Tests
             .Respond(HttpStatusCode.OK, googleHeaders, new StringContent("", Encoding.UTF8, "application/text"));
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        mockHttpOnGce.Dispose();
+    }
+
     [Test]
     public async Task IsOnGCETrue()
     {
@@ -36,7 +42,7 @@ public class Tests
         var client = mockHttp.ToHttpClient();
         using var metadata = new MetadataClient(client);
         var onGce = await metadata.IsOnGCEAsync();
-        Assert.IsTrue(onGce);
+        Assert.That(onGce, Is.True);
         mockHttp.VerifyNoOutstandingExpectation();
     }
 
@@ -46,7 +52,7 @@ public class Tests
     {
         using var metadata = new MetadataClient();
         var onGce = await metadata.IsOnGCEAsync();
-        Assert.IsFalse(onGce);
+        Assert.That(onGce, Is.False);
     }
 
     [Test]
@@ -62,7 +68,7 @@ public class Tests
         var client = mockHttp.ToHttpClient();
         using var metadata = new MetadataClient(client);
         var onGce = await metadata.IsOnGCEAsync();
-        Assert.IsTrue(onGce);
+        Assert.That(onGce, Is.True);
         mockHttp.VerifyNoOutstandingExpectation();
     }
 
@@ -71,7 +77,7 @@ public class Tests
     {
         using var metadata = new MetadataClient();
         var result = await metadata.GetProjectIdAsync();
-        Assert.IsNull(result);
+        Assert.That(result, Is.Null);
     }
 
     [Test]
