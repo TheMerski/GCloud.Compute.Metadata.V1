@@ -39,26 +39,6 @@ version-resolver:
     labels:
       - 'patch'
   default: patch
-autolabeler:
-  - label: 'chore'
-    branch:
-      - '/docs{0,1}\/.+/'
-    title:
-      - "/chore/i"
-      - "/docs/i"
-  - label: 'github-actions'
-    title:
-      - "/github actions/i"
-      - "/ci/i"
-  - label: 'bug'
-    branch:
-      - '/fix\/.+/'
-    title:
-      - "/bug/i"
-      - "/fix/i"
-  - label: 'feature'
-    title:
-      - "/feat/i"
 template: |
   ## Changes
 
