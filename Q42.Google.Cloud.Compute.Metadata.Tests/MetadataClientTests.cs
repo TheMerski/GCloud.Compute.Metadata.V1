@@ -77,7 +77,7 @@ public class Tests
     [Test]
     public Task ThrowsWhenNotOnGCE()
     {
-        using var metadata = new MetadataClient( true);
+        using var metadata = new MetadataClient(throwIfNotOnGce: true);
         Assert.ThrowsAsync<NotOnGceException>(async () => await metadata.GetProjectIdAsync());
         return Task.CompletedTask;
     }
