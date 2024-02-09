@@ -7,7 +7,14 @@
         <PackageId>Q42.Google.Cloud.Compute.Metadata.V1</PackageId>
         <Version>$(PACKAGE_VERSION)</Version>
         <Company>Q42</Company>
+        <RepositoryUrl>https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1</PackageProjectUrl>
+        <Copyright>Copyright 2024</Copyright>
+        <Authors>Merwin Hill</Authors>
+        <Title>GCE metadata</Title>
+        <Description>Library for using the GCE metadata api</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageTags>google cloud metadata q42</PackageTags>
     </PropertyGroup>
 
 </Project>
