@@ -1,7 +1,8 @@
 # GCE Metadata client
 
-[![Tests](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml/badge.svg)](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml)
-[![Publish](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml)
+[![Test](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml/badge.svg)](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml)[![Publish](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml)
+
+![NuGet Version](https://img.shields.io/nuget/v/Q42.Google.Cloud.Compute.Metadata.V1)
 
 **Disclaimer: This is not an official Google package and has no affiliation with Google.**
 
