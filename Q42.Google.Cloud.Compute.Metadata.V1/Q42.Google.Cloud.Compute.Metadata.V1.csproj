@@ -12,9 +12,20 @@
         <Copyright>Copyright 2024</Copyright>
         <Authors>Merwin Hill</Authors>
         <Title>GCE metadata</Title>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <Description>Library for using the GCE metadata api</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageTags>google cloud metadata q42</PackageTags>
     </PropertyGroup>
-
+    <ItemGroup>
+    <None Include="..\LICENSE">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+    </None>
+    </ItemGroup>
 </Project>
