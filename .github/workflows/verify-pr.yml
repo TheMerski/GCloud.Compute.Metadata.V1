@@ -9,6 +9,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   enforce-label:
@@ -21,17 +22,4 @@ jobs:
           REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['feature','bug','maintenance', 'dependencies', 'chore', 'ignore-for-release', 'major', 'minor', 'patch', 'github-actions']"
 
   test:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-      - name: 📥 Restore dependencies
-        run: dotnet restore --verbosity normal
-      - name: 🔨 Build
-        run: dotnet build --no-restore --verbosity normal
-      - name: 📋 Test
-        run: dotnet test --no-restore --verbosity normal
+    uses: ./.github/workflows/test.yml
