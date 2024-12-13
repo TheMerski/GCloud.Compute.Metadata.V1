@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>GCloud.Compute.Metadata.V1</PackageId>
@@ -16,6 +15,8 @@
         <Description>Library for using the GCE metadata api</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageTags>google cloud metadata</PackageTags>
+        <LangVersion>13</LangVersion>
+        <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     </PropertyGroup>
     <ItemGroup>
     <None Include="..\LICENSE">
