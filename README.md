@@ -2,7 +2,7 @@
 
 [![Test](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml/badge.svg)](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml)[![Publish](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml)
 
-![NuGet Version](https://img.shields.io/nuget/v/GCloud.Compute.Metadata.V1?link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FGCloud.Compute.Metadata.V1%2F)
+[![NuGet Version](https://img.shields.io/nuget/v/GCloud.Compute.Metadata.V1?link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FGCloud.Compute.Metadata.V1%2F)](https://www.nuget.org/packages/GCloud.Compute.Metadata.V1/)
 
 **Disclaimer: This is not an official Google package and has no affiliation with Google.**
 
