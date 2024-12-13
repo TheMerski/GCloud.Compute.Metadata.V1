@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q42.Google.Cloud.Compute.Metadata.V1", "Q42.Google.Cloud.Compute.Metadata.V1\Q42.Google.Cloud.Compute.Metadata.V1.csproj", "{D260E73D-25B3-4867-93C8-153D5EEE8A23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GCloud.Compute.Metadata.V1", "GCloud.Compute.Metadata.V1\GCloud.Compute.Metadata.V1.csproj", "{D260E73D-25B3-4867-93C8-153D5EEE8A23}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q42.Google.Cloud.Compute.Metadata.TestServer", "Q42.Google.Cloud.Compute.Metadata.TestServer\Q42.Google.Cloud.Compute.Metadata.TestServer.csproj", "{0653D40D-E6F3-4B7C-BF67-F19C70856078}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GCloud.Compute.Metadata.TestServer", "GCloud.Compute.Metadata.TestServer\GCloud.Compute.Metadata.TestServer.csproj", "{0653D40D-E6F3-4B7C-BF67-F19C70856078}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Q42.Google.Cloud.Compute.Metadata.Tests", "Q42.Google.Cloud.Compute.Metadata.Tests\Q42.Google.Cloud.Compute.Metadata.Tests.csproj", "{7C6FA942-5B98-43B3-9E39-3F91D6761BEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GCloud.Compute.Metadata.Tests", "GCloud.Compute.Metadata.Tests\GCloud.Compute.Metadata.Tests.csproj", "{7C6FA942-5B98-43B3-9E39-3F91D6761BEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

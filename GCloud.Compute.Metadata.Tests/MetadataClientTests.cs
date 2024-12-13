@@ -1,8 +1,9 @@
-namespace Q42.Google.Cloud.Compute.Metadata.Tests;
+using GCloud.Compute.Metadata.V1;
+
+namespace GCloud.Compute.Metadata.Tests;
 
 using System.Net;
 using System.Text;
-using Q42.Google.Cloud.Compute.Metadata.V1;
 using RichardSzalay.MockHttp;
 
 public class Tests

@@ -22,11 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Q42.Google.Cloud.Compute.Metadata.V1\Q42.Google.Cloud.Compute.Metadata.V1.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Q42.Google.Cloud.Compute.Metadata.V1\Q42.Google.Cloud.Compute.Metadata.V1.csproj" />
+      <ProjectReference Include="..\GCloud.Compute.Metadata.V1\GCloud.Compute.Metadata.V1.csproj" />
     </ItemGroup>
 
 </Project>

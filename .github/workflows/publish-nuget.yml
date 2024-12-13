@@ -36,7 +36,7 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --configuration Release
-        working-directory: Q42.Google.Cloud.Compute.Metadata.V1
+        working-directory: GCloud.Compute.Metadata.V1
       - name: Publish to github nuget registry
         run: dotnet nuget push bin/Release/*.nupkg --api-key "${{ secrets.NUGET_KEY }}" --source "https://api.nuget.org/v3/index.json"
-        working-directory: Q42.Google.Cloud.Compute.Metadata.V1
+        working-directory: GCloud.Compute.Metadata.V1

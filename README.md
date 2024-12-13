@@ -1,8 +1,8 @@
 # GCE Metadata client
 
-[![Test](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml/badge.svg)](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml)[![Publish](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/Q42/Q42.Google.Cloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml)
+[![Test](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml/badge.svg)](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/verify-pr.yml)[![Publish](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml/badge.svg)](https://github.com/TheMerski/GCloud.Compute.Metadata.V1/actions/workflows/publish-nuget.yml)
 
-![NuGet Version](https://img.shields.io/nuget/v/Q42.Google.Cloud.Compute.Metadata.V1?link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FQ42.Google.Cloud.Compute.Metadata.V1%2F)
+![NuGet Version](https://img.shields.io/nuget/v/GCloud.Compute.Metadata.V1?link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FGCloud.Compute.Metadata.V1%2F)
 
 **Disclaimer: This is not an official Google package and has no affiliation with Google.**
 

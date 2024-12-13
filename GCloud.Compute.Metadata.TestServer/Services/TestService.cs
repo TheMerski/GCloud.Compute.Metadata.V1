@@ -1,10 +1,9 @@
 using Grpc.Core;
-using Q42.Google.Cloud.Compute.Metadata.TestServer;
+using GCloud.Compute.Metadata.V1;
 
-namespace Q42.Google.Cloud.Compute.Metadata.TestServer.Services;
+namespace GCloud.Compute.Metadata.TestServer.Services;
 
 using global::Google.Protobuf.WellKnownTypes;
-using Q42.Google.Cloud.Compute.Metadata.V1;
 
 public class TestService(ILogger<TestService> logger) : TestServer.TestService.TestServiceBase
 {
