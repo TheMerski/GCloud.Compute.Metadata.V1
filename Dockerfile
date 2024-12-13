@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 as runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 as runtime
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8080
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder-base
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS builder-base
 WORKDIR /src
 COPY . .
 
