@@ -1,4 +1,4 @@
-using Q42.Google.Cloud.Compute.Metadata.TestServer.Services;
+using GCloud.Compute.Metadata.TestServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

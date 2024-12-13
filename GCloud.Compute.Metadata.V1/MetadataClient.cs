@@ -1,6 +1,5 @@
-﻿namespace Q42.Google.Cloud.Compute.Metadata.V1;
+﻿namespace GCloud.Compute.Metadata.V1;
 
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 
@@ -23,7 +22,7 @@ public class MetadataClient: IDisposable
     // ReSharper disable once InconsistentNaming
     private const string metadataHostEnv = "GCE_METADATA_HOST";
     // ReSharper disable once InconsistentNaming
-    private const string userAgent = "Q42/google-cloud-compute-metadata-v1";
+    private const string userAgent = "gcloud-compute-metadata-v1";
     #endregion
 
     private readonly HttpClient client;

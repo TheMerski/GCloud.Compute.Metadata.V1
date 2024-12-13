@@ -1,4 +1,4 @@
-namespace Q42.Google.Cloud.Compute.Metadata.TestServer;
+namespace GCloud.Compute.Metadata.TestServer;
 
 public static class TaskExtensions
 {

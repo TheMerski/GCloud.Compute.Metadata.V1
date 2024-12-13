@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "Q42.Google.Cloud.Compute.Metadata.TestServer";
+option csharp_namespace = "GCloud.Compute.Metadata.TestServer";
 
 package test;
 
