@@ -1,4 +1,7 @@
 name: Publish C# package to the NuGet registry
+permissions:
+  contents: write
+  pull-requests: write
 
 on:
   release:
@@ -15,13 +18,11 @@ env:
 
 jobs:
   test:
+    permissions:
+      contents: read
     uses: ./.github/workflows/test.yml
-
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     needs:
       - test
     steps:
