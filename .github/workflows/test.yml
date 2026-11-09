@@ -13,7 +13,7 @@ jobs:
         # Run test against LTS .NET versions and the latest current version
         dotnet-version: [8.0.x, 10.0.x]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
