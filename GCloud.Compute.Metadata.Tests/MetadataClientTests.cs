@@ -2,6 +2,7 @@ using GCloud.Compute.Metadata.V1;
 
 namespace GCloud.Compute.Metadata.Tests;
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 using RichardSzalay.MockHttp;
@@ -29,6 +30,121 @@ public class Tests
     public void TearDown()
     {
         mockHttpOnGce.Dispose();
+    }
+
+    [Test]
+    public async Task ConcurrentGetsOnSharedClientReturnCorrectValues()
+    {
+        const int keys = 200;
+        const int callsPerKey = 5;
+        mockHttpOnGce.When($"{metadataBase}instance/attributes/*")
+            .WithHeaders(googleHeaders)
+            .Respond(req => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"value-{req.RequestUri!.Segments.Last()}")
+            });
+        using var metadata = new MetadataClient(mockHttpOnGce.ToHttpClient());
+
+        var calls = Enumerable.Range(0, keys * callsPerKey)
+            .Select(i => $"key{i % keys}")
+            .Select(key => Task.Run(async () => (key, value: await metadata.GetInstanceAttributeValueAsync(key))))
+            .ToArray();
+
+        foreach (var (key, value) in await Task.WhenAll(calls))
+        {
+            Assert.That(value, Is.EqualTo($"value-{key}"));
+        }
+    }
+
+    [Test]
+    public async Task ConcurrentIsOnGceCallsProbeOnce()
+    {
+        var mockHttp = new MockHttpMessageHandler();
+        var probe = mockHttp.When(baseAddress)
+            .Respond(HttpStatusCode.OK, googleHeaders, new StringContent(""));
+        using var metadata = new MetadataClient(mockHttp.ToHttpClient());
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 100).Select(_ => Task.Run(() => metadata.IsOnGCEAsync())));
+
+        Assert.That(results, Is.All.True);
+        Assert.That(mockHttp.GetMatchCount(probe), Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task SharedHttpClientIsNotModified()
+    {
+        var seen = new ConcurrentBag<HttpRequestMessage>();
+        var mockHttp = new MockHttpMessageHandler();
+        mockHttp.When(baseAddress)
+            .Respond(req =>
+            {
+                seen.Add(req);
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                response.Headers.Add("Metadata-Flavor", "Google");
+                return response;
+            });
+        mockHttp.When($"{metadataBase}project/project-id")
+            .Respond(req =>
+            {
+                seen.Add(req);
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("test-project") };
+            });
+        using var shared = mockHttp.ToHttpClient();
+        var originalTimeout = shared.Timeout;
+
+        using var first = new MetadataClient(shared, throwIfNotOnGce: false, disposeHttpClient: false);
+        await first.GetProjectIdAsync();
+        // Constructing a second client after the HttpClient has sent requests must not throw.
+        using var second = new MetadataClient(shared, throwIfNotOnGce: false, disposeHttpClient: false);
+        Assert.That(await second.GetProjectIdAsync(), Is.EqualTo("test-project"));
+
+        Assert.That(shared.DefaultRequestHeaders, Is.Empty);
+        Assert.That(shared.Timeout, Is.EqualTo(originalTimeout));
+        Assert.That(seen, Has.Count.EqualTo(4));
+        foreach (var request in seen)
+        {
+            Assert.That(request.Headers.GetValues("Metadata-Flavor"), Is.EqualTo(new[] { "Google" }));
+            Assert.That(request.Headers.UserAgent.ToString(), Is.EqualTo("gcloud-compute-metadata-v1"));
+        }
+    }
+
+    [Test]
+    public async Task DisposingKeepsInjectedHttpClientWhenAsked()
+    {
+        using var shared = mockHttpOnGce.ToHttpClient();
+        new MetadataClient(shared, throwIfNotOnGce: false, disposeHttpClient: false).Dispose();
+
+        using var other = new MetadataClient(shared);
+        Assert.That(await other.IsOnGCEAsync(), Is.True);
+    }
+
+    [Test]
+    public async Task DisposingDisposesInjectedHttpClientByDefault()
+    {
+        var injected = mockHttpOnGce.ToHttpClient();
+        new MetadataClient(injected).Dispose();
+
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => injected.GetAsync(baseAddress));
+    }
+
+    [Test]
+    public async Task TimesOutSlowMetadataServerAfterOneSecond()
+    {
+        var mockHttp = new MockHttpMessageHandler();
+        mockHttp.When(baseAddress)
+            .Respond(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10));
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            });
+        using var metadata = new MetadataClient(mockHttp.ToHttpClient());
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var onGce = await metadata.IsOnGCEAsync();
+
+        Assert.That(onGce, Is.False);
+        // The mock delays 10s; finishing well before that proves the 1s per-request timeout applied.
+        Assert.That(stopwatch.Elapsed, Is.LessThan(TimeSpan.FromSeconds(8)));
     }
 
     [Test]

@@ -1,5 +1,6 @@
 ﻿namespace GCloud.Compute.Metadata.V1;
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
 
@@ -25,7 +26,11 @@ public class MetadataClient: IDisposable
     private const string userAgent = "gcloud-compute-metadata-v1";
     #endregion
 
+    // Timeout after 1 second, because we don't want to wait for the metadata server if we're not on GCE.
+    private static readonly TimeSpan requestTimeout = TimeSpan.FromSeconds(1);
+
     private readonly HttpClient client;
+    private readonly bool disposeHttpClient;
     private readonly bool throwIfNotOnGce;
     private readonly string metadataHost;
     private readonly string baseUrl;
@@ -33,33 +38,47 @@ public class MetadataClient: IDisposable
     #region Backing fields
 
     // ReSharper disable once InconsistentNaming
-    private bool? onGCE = null;
-    private readonly Dictionary<string, string> cachedStrings = new();
+    private readonly Lazy<Task<bool>> onGCE;
+    private readonly ConcurrentDictionary<string, string> cachedStrings = new();
 
     #endregion
 
     /// <summary>
     /// Initialize a new MetadataClient.
     /// </summary>
-    /// <param name="httpClient">An injected HttpClient to use</param>
+    /// <param name="httpClient">An injected HttpClient to use. It is disposed when this MetadataClient is disposed.</param>
     /// <param name="throwIfNotOnGce">
     ///     Defines if the functions should throw a NotOnGceException when not on GCE.
     ///     When `false`, the functions will return null when not on GCE.
     ///     When `true`, the functions will throw when not on GCE.
     /// </param>
     public MetadataClient(HttpClient httpClient, bool throwIfNotOnGce = false)
+        : this(httpClient, throwIfNotOnGce, disposeHttpClient: true)
+    {
+    }
+
+    /// <summary>
+    /// Initialize a new MetadataClient.
+    /// </summary>
+    /// <param name="httpClient">An injected HttpClient to use. It is never modified, so it can be shared.</param>
+    /// <param name="throwIfNotOnGce">
+    ///     Defines if the functions should throw a NotOnGceException when not on GCE.
+    ///     When `false`, the functions will return null when not on GCE.
+    ///     When `true`, the functions will throw when not on GCE.
+    /// </param>
+    /// <param name="disposeHttpClient">
+    ///     `true` to dispose the HttpClient when this MetadataClient is disposed;
+    ///     `false` to leave it open, e.g. when it is shared.
+    /// </param>
+    public MetadataClient(HttpClient httpClient, bool throwIfNotOnGce, bool disposeHttpClient)
     {
         this.throwIfNotOnGce = throwIfNotOnGce;
         metadataHost = Environment.GetEnvironmentVariable(metadataHostEnv) ?? metadataIP;
         baseUrl = $"http://{metadataHost}/computeMetadata/v1/";
 
         client = httpClient;
-        client.DefaultRequestHeaders.Add("User-Agent", userAgent);
-        // Required header per https://cloud.google.com/compute/docs/metadata/overview#parts-of-a-request
-        client.DefaultRequestHeaders.Add("Metadata-Flavor", "Google");
-
-        // Timeout after 1 second, because we don't want to wait for the metadata server if we're not on GCE.
-        client.Timeout = TimeSpan.FromSeconds(1);
+        this.disposeHttpClient = disposeHttpClient;
+        onGCE = new Lazy<Task<bool>>(ProbeIsOnGceAsync);
     }
 
     /// <summary>
@@ -75,25 +94,41 @@ public class MetadataClient: IDisposable
     }
 
     /// <summary>
+    /// Sends a GET with the headers and timeout set per request, so a shared HttpClient is never modified.
+    /// </summary>
+    private async Task<HttpResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Add("User-Agent", userAgent);
+        // Required header per https://cloud.google.com/compute/docs/metadata/overview#parts-of-a-request
+        request.Headers.Add("Metadata-Flavor", "Google");
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(requestTimeout);
+        return await client.SendAsync(request, timeout.Token);
+    }
+
+    /// <summary>
     /// reports whether this process is running on Google Compute Engine.
     /// </summary>
     public async Task<bool> IsOnGCEAsync(CancellationToken cancellationToken = default)
     {
-        if (onGCE.HasValue)
-            return onGCE.Value;
+        // The probe runs once per client; each caller's token only cancels that caller's wait.
+        return await onGCE.Value.WaitAsync(cancellationToken);
+    }
 
+    private async Task<bool> ProbeIsOnGceAsync()
+    {
         try
         {
-            var response = await client.GetAsync($"http://{metadataHost}", cancellationToken);
-            onGCE = response.Headers.TryGetValues("Metadata-Flavor", out var values) && values.Contains("Google");
+            using var response = await GetAsync($"http://{metadataHost}", CancellationToken.None);
+            return response.Headers.TryGetValues("Metadata-Flavor", out var values) && values.Contains("Google");
         }
         catch (Exception)
         {
             // If we get an exception, we're can't connect to the metadata server or receive an error, so we are probably not on GCE.
-            onGCE = false;
+            return false;
         }
-
-        return onGCE.Value;
     }
 
     /// <summary>
@@ -275,7 +310,7 @@ public class MetadataClient: IDisposable
             return null;
         }
 
-        var response = await client.GetAsync($"{baseUrl}{suffix}", cancellationToken);
+        using var response = await GetAsync($"{baseUrl}{suffix}", cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound)
             throw new Exception($"{suffix} not found");
         response.EnsureSuccessStatusCode();
@@ -286,6 +321,7 @@ public class MetadataClient: IDisposable
 
     public void Dispose()
     {
-        client.Dispose();
+        if (disposeHttpClient)
+            client.Dispose();
     }
 }
