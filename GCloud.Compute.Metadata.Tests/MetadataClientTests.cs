@@ -106,11 +106,10 @@ public class Tests
     }
 
     [Test]
-    public Task ThrowsWhenNotOnGCE()
+    public async Task ThrowsWhenNotOnGCE()
     {
         using var metadata = new MetadataClient(throwIfNotOnGce: true);
-        Assert.ThrowsAsync<NotOnGceException>(async () => await metadata.GetProjectIdAsync());
-        return Task.CompletedTask;
+        await Assert.ThrowsAsync<NotOnGceException>(async () => await metadata.GetProjectIdAsync());
     }
 
     [Test]
@@ -127,14 +126,13 @@ public class Tests
     }
 
     [Test]
-    public Task GetsAreCached()
+    public async Task GetsAreCached()
     {
         var reqMock = mockHttpOnGce.When($"{metadataBase}project/project-id")
             .WithHeaders(googleHeaders)
             .Respond(HttpStatusCode.NotFound);
         using var metadata = new MetadataClient(mockHttpOnGce.ToHttpClient());
-        Assert.ThrowsAsync<Exception>(async () => await metadata.GetProjectIdAsync());
-        return Task.CompletedTask;
+        await Assert.ThrowsAsync<Exception>(async () => await metadata.GetProjectIdAsync());
     }
 
     [Test]
