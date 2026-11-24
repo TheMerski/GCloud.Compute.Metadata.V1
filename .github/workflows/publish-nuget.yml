@@ -1,7 +1,4 @@
 name: Publish C# package to the NuGet registry
-permissions:
-  contents: write
-  pull-requests: write
 
 on:
   release:
@@ -25,6 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - test
+    permissions:
+      contents: read
+      id-token: write # lets NuGet/login request a GitHub OIDC token for trusted publishing
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Format nuget version
@@ -38,6 +38,14 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
         working-directory: GCloud.Compute.Metadata.V1
-      - name: Publish to github nuget registry
-        run: dotnet nuget push bin/Release/*.nupkg --api-key "${{ secrets.NUGET_KEY }}" --source "https://api.nuget.org/v3/index.json"
+      # Exchange the OIDC token for a short-lived (1 hour) nuget.org API key, right before pushing.
+      - name: NuGet login
+        uses: NuGet/login@v1.2.0
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }} # nuget.org profile name, not email
+      - name: Publish to nuget.org
+        run: dotnet nuget push bin/Release/*.nupkg --api-key "$NUGET_API_KEY" --source "https://api.nuget.org/v3/index.json"
         working-directory: GCloud.Compute.Metadata.V1
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
