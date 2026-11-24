@@ -26,13 +26,13 @@ jobs:
     needs:
       - test
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
       - name: Format nuget version
         run: |
           echo "PACKAGE_VERSION=${PACKAGE_VERSION_PREFIXED#v}" | tee -a $GITHUB_ENV
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6.1.0
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 11.0.x
       - name: Install dependencies
         run: dotnet restore
       - name: Build

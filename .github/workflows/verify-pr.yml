@@ -8,7 +8,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened, labeled, ready_for_review]
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
     branches:
       - main
   workflow_dispatch:
@@ -19,10 +19,17 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: yogevbd/enforce-label-action@a3c219da6b8fa73f6ba62b68ff09c469b3a1c024 # v2.2.2
-        with:
-          REQUIRED_LABELS_ANY: "feature,bug,maintenance,dependencies,chore,ignore-for-release,major,minor,patch,github-actions"
-          REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['feature','bug','maintenance', 'dependencies', 'chore', 'ignore-for-release', 'bump-major', 'bump-minor', 'bump-patch', 'github-actions']"
+      - name: Require a release label
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          allowed='["feature","bug","maintenance","dependencies","chore","ignore-for-release","major","minor","patch","github-actions"]'
+          if jq -e --argjson allowed "$allowed" 'any(.[]; IN($allowed[]))' <<<"$LABELS" >/dev/null; then
+            echo "Found a release label"
+          else
+            echo "::error::Add at least one of these labels: $(jq -r 'join(", ")' <<<"$allowed")"
+            exit 1
+          fi
 
   test:
     uses: ./.github/workflows/test.yml
