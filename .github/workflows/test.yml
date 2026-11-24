@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         # Run test against LTS .NET versions and the latest current version
-        dotnet-version: [8.0.x, 10.0.x]
+        dotnet-version: [8.0.x, 10.0.x, 11.0.x]
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-dotnet@v6.1.0
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: 📥 Restore dependencies
